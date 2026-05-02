@@ -16,7 +16,9 @@ import { io } from 'socket.io-client';
 
 // Connect to the backend server
 // autoConnect: false means we control when to connect
-const socket = io('http://localhost:5000', {
+const socketURL = process.env.REACT_APP_SOCKET_URL || 'http://localhost:5000';
+
+const socket = io(socketURL, {
   autoConnect: true,   // Connect immediately when the module loads
   transports: ['websocket', 'polling'], // Try websocket first, fall back to polling
 });

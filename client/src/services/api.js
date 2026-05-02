@@ -13,8 +13,10 @@ import axios from 'axios';
 
 // Base URL for all API requests
 // "proxy" in package.json handles this in development
+const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL,
   headers: { 'Content-Type': 'application/json' },
 });
 
