@@ -1,3 +1,4 @@
+
 # Real-Time Tracking and Coordination of Rescue Teams
 
 This is a complete full-stack Proof of Concept (POC) project built for a 2nd-year Computer Engineering student. It solves the problem of poor coordination and tracking of rescue teams during disasters by providing a real-time, map-based dashboard.
