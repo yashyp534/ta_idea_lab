@@ -1,0 +1,90 @@
+/* ============================================================
+   MapView.css — Map container and legend styles
+   ============================================================ */
+
+.map-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+/* The actual Leaflet map fills the container */
+.leaflet-map {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-lg);
+  background: #1a2744;
+}
+
+/* ── Map Legend ───────────────────────────────────────────── */
+.map-legend {
+  position: absolute;
+  bottom: 30px;
+  right: 12px;
+  z-index: 1000; /* Must be above Leaflet tiles (z-index ~400) */
+  background: rgba(22, 27, 34, 0.92);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  backdrop-filter: blur(8px);
+  min-width: 130px;
+  box-shadow: var(--shadow-md);
+}
+
+.legend-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.legend-item:last-child {
+  margin-bottom: 0;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.5);
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+/* ── Click instruction overlay ────────────────────────────── */
+.map-instruction {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  color: #fbbf24;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  backdrop-filter: blur(8px);
+  white-space: nowrap;
+  box-shadow: var(--shadow-sm);
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(-8px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}

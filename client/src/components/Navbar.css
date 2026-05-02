@@ -1,0 +1,31 @@
+.navbar {
+  height: 64px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 30px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+.navbar-brand { display: flex; align-items: center; gap: 10px; }
+.navbar-logo { font-size: 1.5rem; }
+.navbar-title {
+  font-weight: 800; font-size: 1.2rem;
+  background: linear-gradient(to right, #60a5fa, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.navbar-links { display: flex; gap: 20px; }
+.nav-link {
+  text-decoration: none; color: var(--text-secondary);
+  font-weight: 500; padding: 8px 16px; border-radius: var(--radius-md);
+  transition: all 0.2s;
+}
+.nav-link:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
+.nav-link.active { color: var(--accent-blue); background: rgba(59, 130, 246, 0.1); }
+.navbar-right { display: flex; align-items: center; gap: 20px; }
+.navbar-user { font-size: 0.9rem; color: var(--text-muted); }
+.navbar-logout { padding: 6px 15px; font-size: 0.85rem; }

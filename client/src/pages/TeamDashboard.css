@@ -1,0 +1,394 @@
+/* ============================================================
+   TeamDashboard.css — Rescue Team layout styles
+   ============================================================ */
+
+/* ── Full-screen layout: sidebar + main ───────────────────── */
+.team-layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg-primary);
+}
+
+/* ── Sidebar ──────────────────────────────────────────────── */
+.team-sidebar {
+  width: 320px;
+  flex-shrink: 0;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Let inner .sidebar-body scroll */
+}
+
+/* Header */
+.team-sidebar-header {
+  padding: 20px 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+/* Tab row (My Status | All Teams) */
+.team-sidebar-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 12px 16px 0;
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.team-sidebar-tabs .sidebar-tab {
+  flex: 1;
+  padding: 9px 6px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+  margin-bottom: -1px;
+}
+
+.team-sidebar-tabs .sidebar-tab:hover { color: var(--text-primary); }
+
+.team-sidebar-tabs .sidebar-tab.active {
+  color: var(--accent-blue);
+  border-bottom-color: var(--accent-blue);
+}
+
+/* Active tracking status label below the button */
+.tracking-active-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--accent-green);
+  margin-top: 8px;
+}
+
+/* "You" badge in all-teams list */
+.you-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--accent-blue);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  padding: 1px 6px;
+  border-radius: 10px;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+/* Highlight my own card */
+.team-card-mine {
+  border-color: rgba(59, 130, 246, 0.4) !important;
+  background: rgba(59, 130, 246, 0.04) !important;
+}
+
+/* Last-seen timestamp */
+.team-last-seen {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  font-family: 'Courier New', monospace;
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 24px 12px;
+}
+.empty-state p {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+/* Profile Card */
+.profile-card {
+  margin: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(59, 130, 246, 0.05);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: var(--radius-md);
+}
+
+.profile-avatar {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.profile-info {
+  min-width: 0;
+}
+
+.profile-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profile-email {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Info Cards */
+.info-card {
+  margin: 0 20px 20px;
+}
+
+.info-card-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+
+.coords-value {
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  margin-bottom: 12px;
+}
+
+.location-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.location-mode {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 12px;
+}
+
+.location-mode.real {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--accent-green);
+}
+
+.location-mode.sim {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--accent-yellow);
+}
+
+/* Task Section */
+.task-section {
+  padding: 0 20px 20px;
+  flex: 1;
+}
+
+.task-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 12px;
+}
+
+.no-task {
+  text-align: center;
+  padding: 32px 16px;
+  background: var(--bg-tertiary);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-md);
+}
+
+.no-task-icon {
+  font-size: 2rem;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.no-task p {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+/* Active Task Card */
+.my-task-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px;
+}
+
+.my-task-status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.my-task-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.my-task-description {
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.my-task-destination {
+  background: rgba(139, 92, 246, 0.08);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.dest-label {
+  display: block;
+  font-size: 11px;
+  color: #8b5cf6;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.dest-name {
+  display: block;
+  font-size: 13px;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.dest-coords {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: 'Courier New', monospace;
+  margin-top: 2px;
+}
+
+.task-completed-msg {
+  text-align: center;
+  color: var(--accent-green);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: var(--radius-md);
+}
+
+/* Sidebar Footer */
+.team-sidebar-footer {
+  padding: 20px;
+  border-top: 1px solid var(--border-color);
+  margin-top: auto;
+}
+
+/* ── Main map area ────────────────────────────────────────── */
+.team-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 16px;
+}
+
+.team-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.team-topbar h1 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.team-topbar p {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* Live indicator pill */
+.live-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.live-dot {
+  width: 6px;
+  height: 6px;
+  background: #ef4444;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+/* Loading state */
+.team-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  gap: 16px;
+  color: var(--text-secondary);
+  font-size: 15px;
+}
+
+.team-loading .spinner {
+  width: 32px;
+  height: 32px;
+}

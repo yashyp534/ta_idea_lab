@@ -1,0 +1,189 @@
+/* ============================================================
+   Auth.css — Styles for Login and Signup pages
+   ============================================================ */
+
+/* Full-page two-panel layout */
+.auth-page {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg-primary);
+}
+
+/* ── Left Panel: Branding ─────────────────────────────────── */
+.auth-brand-panel {
+  flex: 1;
+  background: linear-gradient(135deg, #1a2744 0%, #0f172a 50%, #1a1f2e 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Decorative background circles */
+.auth-brand-panel::before {
+  content: '';
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.1), transparent 70%);
+  top: -100px;
+  right: -100px;
+  border-radius: 50%;
+}
+
+.auth-brand-panel::after {
+  content: '';
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.08), transparent 70%);
+  bottom: -80px;
+  left: -80px;
+  border-radius: 50%;
+}
+
+.brand-content {
+  position: relative;
+  z-index: 1;
+  max-width: 400px;
+}
+
+.brand-icon {
+  font-size: 3.5rem;
+  margin-bottom: 24px;
+  display: block;
+}
+
+.brand-content h1 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+
+.brand-content > p {
+  font-size: 16px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 32px;
+}
+
+.brand-features {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.brand-feature {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.feature-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.feature-dot.available  { background: var(--accent-green); box-shadow: 0 0 6px var(--accent-green); }
+.feature-dot.busy       { background: var(--accent-yellow); }
+.feature-dot.on-mission { background: var(--accent-red); }
+
+/* ── Right Panel: Form ────────────────────────────────────── */
+.auth-form-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 32px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+}
+
+.auth-header {
+  margin-bottom: 28px;
+}
+
+.auth-header h2 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.auth-header p {
+  color: var(--text-secondary);
+  font-size: 15px;
+}
+
+/* Demo credentials section */
+.demo-credentials {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  margin-bottom: 20px;
+}
+
+.demo-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 8px !important;
+}
+
+.demo-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.demo-row strong {
+  color: var(--text-primary);
+}
+
+.demo-row span {
+  font-family: 'Courier New', monospace;
+  background: rgba(59, 130, 246, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+code {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--accent-blue);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
+}
+
+/* Switch link */
+.auth-switch {
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-top: 16px;
+}
+
+/* Responsive: stack on small screens */
+@media (max-width: 768px) {
+  .auth-page { flex-direction: column; }
+  .auth-brand-panel { padding: 32px 24px; }
+  .brand-content h1 { font-size: 1.6rem; }
+}

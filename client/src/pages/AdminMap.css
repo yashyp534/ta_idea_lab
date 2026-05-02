@@ -1,0 +1,12 @@
+.full-map-main {
+  padding: 0 !important;
+  margin: 0 !important;
+  height: calc(100vh - 64px);
+  width: 100vw;
+  position: relative;
+}
+.full-map-main .map-wrapper,
+.full-map-main .leaflet-map {
+  height: 100% !important;
+  width: 100% !important;
+}

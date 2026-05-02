@@ -1,0 +1,56 @@
+.admin-content {
+  padding: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.content-header { margin-bottom: 30px; }
+.content-header h1 { font-size: 2rem; color: var(--text-primary); margin-bottom: 8px; }
+.content-header p { color: var(--text-muted); }
+.teams-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+.team-status-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s;
+}
+.team-status-card:hover { transform: translateY(-2px); border-color: var(--accent-blue); }
+.card-left { display: flex; align-items: center; gap: 15px; }
+.unit-avatar {
+  width: 50px; height: 50px;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; font-weight: 700; color: white;
+}
+.unit-info h3 { margin: 0; font-size: 1.1rem; }
+.unit-meta { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+.card-right { text-align: right; }
+.unit-coords { font-family: 'Courier New', monospace; font-size: 0.75rem; color: var(--text-muted); margin-top: 8px; }
+.active-mission-strip {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: #3b82f6; color: white; font-size: 0.65rem;
+  font-weight: 800; text-align: center; padding: 2px 0; letter-spacing: 2px;
+}
+
+/* Mission Completed → Gray */
+.status-mission-completed { border-left: 4px solid #6b7280; }
+.badge-mission-completed { 
+  background: rgba(107, 114, 128, 0.1); 
+  color: #9ca3af; 
+  border: 1px solid rgba(107, 114, 128, 0.3);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}

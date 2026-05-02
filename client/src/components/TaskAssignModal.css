@@ -1,0 +1,164 @@
+/* ============================================================
+   TaskAssignModal.css — Modal dialog styles
+   ============================================================ */
+
+/* Darkened background overlay */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;              /* Covers full viewport */
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 5000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeInBackdrop 0.2s ease;
+}
+
+@keyframes fadeInBackdrop {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Modal box */
+.modal-box {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  width: 100%;
+  max-width: 520px;
+  box-shadow: var(--shadow-lg);
+  animation: slideUpModal 0.25s ease;
+}
+
+@keyframes slideUpModal {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Modal header row */
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.modal-header h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.modal-header p {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.modal-close-btn {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: var(--transition);
+  line-height: 1;
+}
+
+.modal-close-btn:hover {
+  background: var(--accent-red);
+  border-color: var(--accent-red);
+  color: #fff;
+}
+
+/* Coordinate hint bar */
+.modal-coords-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #93c5fd;
+  margin-bottom: 12px;
+}
+
+/* ── Address Search Section ──────────────────────────── */
+.address-search-section {
+  margin-bottom: 16px;
+}
+
+.address-search-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.address-search-row .form-input {
+  flex: 1;
+}
+
+/* Dropdown list of Nominatim results */
+.address-results {
+  background: var(--bg-primary);
+  border: 1px solid var(--accent-blue);
+  border-radius: var(--radius-md);
+  margin-top: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.address-result-item {
+  padding: 10px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-color);
+  transition: background 0.15s;
+}
+
+.address-result-item:last-child {
+  border-bottom: none;
+}
+
+.address-result-item:hover {
+  background: var(--bg-tertiary);
+}
+
+.address-result-item strong {
+  display: block;
+  font-size: 13px;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.address-result-item small {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Side-by-side latitude / longitude inputs */
+.modal-coord-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* Action buttons row */
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+}

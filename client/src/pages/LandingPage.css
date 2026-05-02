@@ -1,0 +1,179 @@
+/* ============================================================
+   LandingPage.css — Home page styles
+   ============================================================ */
+
+.landing-page {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Decorative background blobs */
+.landing-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+}
+
+.landing-blob-1 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.12), transparent 70%);
+  top: -150px;
+  left: -150px;
+}
+
+.landing-blob-2 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.1), transparent 70%);
+  bottom: -100px;
+  right: -100px;
+}
+
+.landing-content {
+  position: relative;
+  z-index: 1;
+  max-width: 900px;
+  width: 100%;
+  text-align: center;
+}
+
+/* ── Header ───────────────────────────────────────────────── */
+.landing-header {
+  margin-bottom: 48px;
+}
+
+.landing-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  display: block;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-10px); }
+}
+
+.landing-header h1 {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.landing-header p {
+  font-size: 16px;
+  color: var(--text-secondary);
+  max-width: 520px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ── Role Cards ───────────────────────────────────────────── */
+.landing-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.role-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 36px 28px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.role-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+.role-card-admin:hover {
+  border-color: var(--accent-blue);
+  box-shadow: 0 12px 40px rgba(59, 130, 246, 0.2);
+}
+
+.role-card-team:hover {
+  border-color: var(--accent-green);
+  box-shadow: 0 12px 40px rgba(16, 185, 129, 0.2);
+}
+
+.role-card-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  display: block;
+}
+
+.role-card h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.role-card p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.role-features {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.role-features span {
+  font-size: 13px;
+  color: var(--text-secondary);
+  padding: 4px 8px;
+  background: var(--bg-tertiary);
+  border-radius: 6px;
+}
+
+.role-btn {
+  width: 100%;
+  font-size: 15px;
+  padding: 12px;
+}
+
+/* ── Footer ───────────────────────────────────────────────── */
+.landing-footer {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.link-btn {
+  color: var(--accent-blue);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.link-btn:hover {
+  text-decoration: underline;
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .landing-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-header h1 {
+    font-size: 1.7rem;
+  }
+}

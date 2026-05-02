@@ -1,0 +1,30 @@
+.assign-task-main {
+  display: grid;
+  grid-template-columns: 450px 1fr;
+  height: calc(100vh - 64px);
+  background: var(--bg-primary);
+}
+.assign-form-panel {
+  padding: 40px;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  overflow-y: auto;
+}
+.assign-form-panel h2 { margin-bottom: 10px; }
+.assign-form-panel p { color: var(--text-muted); margin-bottom: 30px; }
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; }
+.search-row { display: flex; gap: 10px; }
+.search-results {
+  list-style: none; padding: 0; margin: 10px 0 0;
+  border: 1px solid var(--border-color); border-radius: var(--radius-md);
+  background: var(--bg-tertiary);
+}
+.search-results li { padding: 10px; font-size: 0.85rem; cursor: pointer; border-bottom: 1px solid var(--border-color); }
+.search-results li:hover { background: var(--bg-secondary); color: var(--accent-blue); }
+.coords-preview {
+  background: var(--bg-tertiary); padding: 15px; border-radius: var(--radius-md);
+  margin-bottom: 25px; display: flex; justify-content: space-around;
+  font-family: 'Courier New', monospace; font-size: 0.8rem; border: 1px dashed var(--border-color);
+}
+.assign-map-panel { position: relative; }
