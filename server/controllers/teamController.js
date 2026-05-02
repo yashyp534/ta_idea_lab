@@ -8,8 +8,8 @@
  * setTeamLocation:  NEW — Admin manually sets a team's location (map click or coords)
  */
 
-const Team = require('../models/Team');
-const Task = require('../models/Task'); // NEW: For auto-completion check
+const { db } = require('../firebase');
+const { collection, getDocs, doc, getDoc, updateDoc, query, where } = require('firebase/firestore');
 
 // ── Helper: Haversine distance in meters ───────────────────────
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -24,11 +24,26 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
 };
 
 // ── getAllTeams ────────────────────────────────────────────────
-// GET /api/teams
-// Returns all teams — used by Admin AND Team dashboards
 const getAllTeams = async (req, res) => {
   try {
-    const teams = await Team.find().populate('userId', 'name email');
+    const teamsRef = collection(db, 'teams');
+    const snapshot = await getDocs(teamsRef);
+    const teams = snapshot.docs.map(doc => ({ _id: doc.id, ...doc.data() }));
+
+    // Populate userId (we'll fetch users manually to simulate populate)
+    const usersRef = collection(db, 'users');
+    const usersSnapshot = await getDocs(usersRef);
+    const usersDict = {};
+    usersSnapshot.docs.forEach(u => {
+      usersDict[u.id] = { _id: u.id, name: u.data().name, email: u.data().email };
+    });
+
+    teams.forEach(t => {
+      if (t.userId && usersDict[t.userId]) {
+        t.userId = usersDict[t.userId];
+      }
+    });
+
     res.json(teams);
   } catch (err) {
     console.error('getAllTeams error:', err.message);
@@ -37,14 +52,17 @@ const getAllTeams = async (req, res) => {
 };
 
 // ── getMyTeam ──────────────────────────────────────────────────
-// GET /api/teams/me
-// Returns the currently logged-in team member's profile
 const getMyTeam = async (req, res) => {
   try {
-    const team = await Team.findOne({ userId: req.user._id });
-    if (!team) {
+    const teamsRef = collection(db, 'teams');
+    const q = query(teamsRef, where('userId', '==', req.user._id));
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) {
       return res.status(404).json({ message: 'Team profile not found.' });
     }
+
+    const team = { _id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
     res.json(team);
   } catch (err) {
     console.error('getMyTeam error:', err.message);
@@ -53,9 +71,6 @@ const getMyTeam = async (req, res) => {
 };
 
 // ── updateLocation ─────────────────────────────────────────────
-// PUT /api/teams/:id/location
-// Called every 5–10 seconds by the rescue team app.
-// UPDATED: now also saves `lastUpdated` timestamp.
 const updateLocation = async (req, res) => {
   try {
     const { lat, lng } = req.body;
@@ -64,21 +79,19 @@ const updateLocation = async (req, res) => {
       return res.status(400).json({ message: 'lat and lng are required.' });
     }
 
-    // Update location AND timestamp together
-    const team = await Team.findByIdAndUpdate(
-      req.params.id,
-      {
-        currentLocation: { lat, lng },
-        lastUpdated: new Date(), // Record exact time of this ping
-      },
-      { new: true }
-    );
+    const teamRef = doc(db, 'teams', req.params.id);
+    const lastUpdated = new Date().toISOString();
+    await updateDoc(teamRef, {
+      currentLocation: { lat, lng },
+      lastUpdated,
+    });
 
-    if (!team) {
+    const teamSnap = await getDoc(teamRef);
+    if (!teamSnap.exists()) {
       return res.status(404).json({ message: 'Team not found.' });
     }
+    const team = { _id: teamSnap.id, ...teamSnap.data() };
 
-    // Broadcast to all connected clients (admin map updates instantly)
     req.io.emit('teamLocationUpdated', {
       teamId:      team._id,
       name:        team.name,
@@ -96,25 +109,23 @@ const updateLocation = async (req, res) => {
 };
 
 // ── updateStatus ───────────────────────────────────────────────
-// PUT /api/teams/:id/status
 const updateStatus = async (req, res) => {
   try {
     const { status } = req.body;
 
-    const validStatuses = ['Available', 'Busy', 'On Mission'];
+    const validStatuses = ['Available', 'Busy', 'On Mission', 'Mission Completed'];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ message: 'Invalid status value.' });
     }
 
-    const team = await Team.findByIdAndUpdate(
-      req.params.id,
-      { status },
-      { new: true }
-    );
+    const teamRef = doc(db, 'teams', req.params.id);
+    await updateDoc(teamRef, { status });
 
-    if (!team) {
+    const teamSnap = await getDoc(teamRef);
+    if (!teamSnap.exists()) {
       return res.status(404).json({ message: 'Team not found.' });
     }
+    const team = { _id: teamSnap.id, ...teamSnap.data() };
 
     req.io.emit('teamStatusUpdated', {
       teamId: team._id,
@@ -129,9 +140,6 @@ const updateStatus = async (req, res) => {
 };
 
 // ── setTeamLocation ────────────────────────────────────────────
-// PUT /api/teams/:id/set-location  (Admin only)
-// NEW: Allows Admin to manually override a team's location.
-// Use case: Team's GPS is offline or wrong; admin corrects it on the map.
 const setTeamLocation = async (req, res) => {
   try {
     const { lat, lng } = req.body;
@@ -140,20 +148,19 @@ const setTeamLocation = async (req, res) => {
       return res.status(400).json({ message: 'lat and lng are required.' });
     }
 
-    const team = await Team.findByIdAndUpdate(
-      req.params.id,
-      {
-        currentLocation: { lat, lng },
-        lastUpdated: new Date(),
-      },
-      { new: true }
-    );
+    const teamRef = doc(db, 'teams', req.params.id);
+    const lastUpdated = new Date().toISOString();
+    await updateDoc(teamRef, {
+      currentLocation: { lat, lng },
+      lastUpdated,
+    });
 
-    if (!team) {
+    const teamSnap = await getDoc(teamRef);
+    if (!teamSnap.exists()) {
       return res.status(404).json({ message: 'Team not found.' });
     }
+    const team = { _id: teamSnap.id, ...teamSnap.data() };
 
-    // Broadcast update so all clients see the moved marker immediately
     req.io.emit('teamLocationUpdated', {
       teamId:      team._id,
       name:        team.name,
@@ -171,8 +178,6 @@ const setTeamLocation = async (req, res) => {
 };
 
 // ── updateLocationByAuth ───────────────────────────────────────
-// POST /api/teams/update-location
-// Automatically finds the team profile for the logged-in user and updates location.
 const updateLocationByAuth = async (req, res) => {
   try {
     const { lat, lng } = req.body;
@@ -180,20 +185,26 @@ const updateLocationByAuth = async (req, res) => {
       return res.status(400).json({ message: 'lat and lng are required.' });
     }
 
-    const team = await Team.findOneAndUpdate(
-      { userId: req.user._id },
-      {
-        currentLocation: { lat, lng },
-        lastUpdated: new Date(),
-      },
-      { new: true }
-    );
+    const teamsRef = collection(db, 'teams');
+    const q = query(teamsRef, where('userId', '==', req.user._id));
+    const snapshot = await getDocs(q);
 
-    if (!team) {
+    if (snapshot.empty) {
       return res.status(404).json({ message: 'Team profile not found for this user.' });
     }
 
-    // Broadcast update
+    const teamId = snapshot.docs[0].id;
+    const teamRef = doc(db, 'teams', teamId);
+    const lastUpdated = new Date().toISOString();
+    
+    await updateDoc(teamRef, {
+      currentLocation: { lat, lng },
+      lastUpdated,
+    });
+
+    const teamSnap = await getDoc(teamRef);
+    const team = { _id: teamSnap.id, ...teamSnap.data() };
+
     req.io.emit('teamLocationUpdated', {
       teamId:      team._id,
       name:        team.name,
@@ -204,32 +215,27 @@ const updateLocationByAuth = async (req, res) => {
     });
 
     // ── FEATURE 1: AUTO MISSION COMPLETION CHECK ────────────────
-    // Check if team has an active task (Assigned or In Progress)
-    const activeTask = await Task.findOne({ 
-      teamId: team._id, 
-      status: { $in: ['Assigned', 'In Progress'] } 
-    });
+    const tasksRef = collection(db, 'tasks');
+    const taskQ = query(tasksRef, where('teamId', '==', team._id), where('status', 'in', ['Assigned', 'In Progress']));
+    const taskSnapshot = await getDocs(taskQ);
 
-    if (activeTask) {
+    if (!taskSnapshot.empty) {
+      const activeTaskDoc = taskSnapshot.docs[0];
+      const activeTask = { _id: activeTaskDoc.id, ...activeTaskDoc.data() };
+
       const dist = calculateDistance(
         lat, lng, 
         activeTask.destination.lat, 
         activeTask.destination.lng
       );
 
-      // If within 50 meters, auto-complete!
       if (dist < 50) {
-        activeTask.status = 'Completed';
-        await activeTask.save();
+        await updateDoc(doc(db, 'tasks', activeTask._id), { status: 'Completed' });
+        await updateDoc(teamRef, { status: 'Mission Completed' });
 
-        team.status = 'Mission Completed';
-        await team.save();
-
-        // Notify via sockets
         req.io.emit('taskStatusUpdated', { taskId: activeTask._id, status: 'Completed' });
         req.io.emit('teamStatusUpdated', { teamId: team._id, status: 'Mission Completed' });
         
-        // Broadcast completion message
         req.io.emit('notification', {
           message: `✅ ${team.name} has completed the task: ${activeTask.description}`,
           type: 'success'
@@ -254,7 +260,7 @@ module.exports = {
   getAllTeams,
   getMyTeam,
   updateLocation,
-  updateLocationByAuth, // Export new method
+  updateLocationByAuth,
   updateStatus,
   setTeamLocation,
 };

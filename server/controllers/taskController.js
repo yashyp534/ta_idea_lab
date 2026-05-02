@@ -7,41 +7,40 @@
  * updateTaskStatus: Team member marks task as In Progress / Completed
  */
 
-const Task = require('../models/Task');
-const Team = require('../models/Team');
+const { db } = require('../firebase');
+const { collection, getDocs, doc, getDoc, updateDoc, addDoc, query, where, orderBy, limit } = require('firebase/firestore');
 
 // ── createTask ────────────────────────────────────────────────────────────────
-// POST /api/tasks
-// Admin selects a team and sets a destination (lat, lng)
 const createTask = async (req, res) => {
   try {
     const { teamId, description, destination, severity } = req.body;
 
-    // destination = { lat, lng, label }
     if (!teamId || !destination || !destination.lat || !destination.lng) {
       return res.status(400).json({ message: 'teamId and destination (lat, lng) are required.' });
     }
 
-    // Fetch the team to get their name for display
-    const team = await Team.findById(teamId);
-    if (!team) {
+    const teamRef = doc(db, 'teams', teamId);
+    const teamSnap = await getDoc(teamRef);
+    if (!teamSnap.exists()) {
       return res.status(404).json({ message: 'Team not found.' });
     }
+    const team = teamSnap.data();
 
-    // Create the task in DB
-    const task = await Task.create({
+    const tasksRef = collection(db, 'tasks');
+    const taskData = {
       teamId,
       teamName:    team.name,
       description: description || 'Emergency Response Mission',
       destination,
       severity:    severity || 'Medium',
       status:      'Assigned',
-    });
+      createdAt:   new Date().toISOString(),
+    };
+    const taskDoc = await addDoc(tasksRef, taskData);
+    const task = { _id: taskDoc.id, ...taskData };
 
-    // Automatically set the team's status to "On Mission"
-    await Team.findByIdAndUpdate(teamId, { status: 'On Mission' });
+    await updateDoc(teamRef, { status: 'On Mission' });
 
-    // Notify all connected clients (admin + the specific team) in real-time
     req.io.emit('taskAssigned', {
       teamId,
       teamName: team.name,
@@ -56,11 +55,12 @@ const createTask = async (req, res) => {
 };
 
 // ── getAllTasks ────────────────────────────────────────────────────────────────
-// GET /api/tasks
-// Admin views all tasks with their current statuses
 const getAllTasks = async (req, res) => {
   try {
-    const tasks = await Task.find().sort({ createdAt: -1 }); // Newest first
+    const tasksRef = collection(db, 'tasks');
+    const q = query(tasksRef, orderBy('createdAt', 'desc'));
+    const snapshot = await getDocs(q);
+    const tasks = snapshot.docs.map(doc => ({ _id: doc.id, ...doc.data() }));
     res.json(tasks);
   } catch (err) {
     console.error('getAllTasks error:', err.message);
@@ -69,18 +69,17 @@ const getAllTasks = async (req, res) => {
 };
 
 // ── getMyTask ─────────────────────────────────────────────────────────────────
-// GET /api/tasks/mine/:teamId
-// Team member sees their latest assigned task
 const getMyTask = async (req, res) => {
   try {
-    // Find the most recently assigned task for this team
-    const task = await Task.findOne({ teamId: req.params.teamId })
-      .sort({ createdAt: -1 }); // Get the latest task
+    const tasksRef = collection(db, 'tasks');
+    const q = query(tasksRef, where('teamId', '==', req.params.teamId), orderBy('createdAt', 'desc'), limit(1));
+    const snapshot = await getDocs(q);
 
-    if (!task) {
+    if (snapshot.empty) {
       return res.status(404).json({ message: 'No task assigned yet.' });
     }
 
+    const task = { _id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
     res.json(task);
   } catch (err) {
     console.error('getMyTask error:', err.message);
@@ -89,8 +88,6 @@ const getMyTask = async (req, res) => {
 };
 
 // ── updateTaskStatus ──────────────────────────────────────────────────────────
-// PUT /api/tasks/:id/status
-// Team member updates their task status
 const updateTaskStatus = async (req, res) => {
   try {
     const { status } = req.body;
@@ -100,23 +97,21 @@ const updateTaskStatus = async (req, res) => {
       return res.status(400).json({ message: 'Invalid task status.' });
     }
 
-    const task = await Task.findByIdAndUpdate(
-      req.params.id,
-      { status },
-      { new: true }
-    );
-
-    if (!task) {
+    const taskRef = doc(db, 'tasks', req.params.id);
+    await updateDoc(taskRef, { status });
+    
+    const taskSnap = await getDoc(taskRef);
+    if (!taskSnap.exists()) {
       return res.status(404).json({ message: 'Task not found.' });
     }
+    const task = { _id: taskSnap.id, ...taskSnap.data() };
 
-    // If task is completed, set team status to "Mission Completed" (per new requirement)
     if (status === 'Completed') {
-      await Team.findByIdAndUpdate(task.teamId, { status: 'Mission Completed' });
+      const teamRef = doc(db, 'teams', task.teamId);
+      await updateDoc(teamRef, { status: 'Mission Completed' });
       req.io.emit('teamStatusUpdated', { teamId: task.teamId, status: 'Mission Completed' });
     }
 
-    // Notify all clients about the task update
     req.io.emit('taskStatusUpdated', { taskId: task._id, status });
 
     res.json({ message: 'Task status updated.', task });
@@ -127,8 +122,6 @@ const updateTaskStatus = async (req, res) => {
 };
 
 // ── completeTask ─────────────────────────────────────────────────────────────
-// POST /api/tasks/complete
-// Specific endpoint requested by user to mark a mission finished
 const completeTask = async (req, res) => {
   try {
     const { taskId, teamId } = req.body;
@@ -137,13 +130,14 @@ const completeTask = async (req, res) => {
       return res.status(400).json({ message: 'taskId and teamId are required.' });
     }
 
-    // 1. Update Task to Completed
-    const task = await Task.findByIdAndUpdate(taskId, { status: 'Completed' }, { new: true });
+    const taskRef = doc(db, 'tasks', taskId);
+    await updateDoc(taskRef, { status: 'Completed' });
+    const taskSnap = await getDoc(taskRef);
+    const task = { _id: taskSnap.id, ...taskSnap.data() };
     
-    // 2. Update Team to Mission Completed (as requested)
-    await Team.findByIdAndUpdate(teamId, { status: 'Mission Completed' });
+    const teamRef = doc(db, 'teams', teamId);
+    await updateDoc(teamRef, { status: 'Mission Completed' });
 
-    // 3. Notify clients
     req.io.emit('taskStatusUpdated', { taskId, status: 'Completed' });
     req.io.emit('teamStatusUpdated', { teamId, status: 'Mission Completed' });
 

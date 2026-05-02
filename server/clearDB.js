@@ -3,42 +3,40 @@
  * 
  * Usage: node clearDB.js
  * 
- * This script connects directly to MongoDB Atlas and wipes all data
- * from the Users, Teams, and Tasks collections.
+ * This script connects directly to Firebase Firestore and wipes all data
+ * from the Users (except admin), Teams, and Tasks collections.
  */
 
 require('dotenv').config();
-const mongoose = require('mongoose');
-
-// Import Models
-const User = require('./models/User');
-const Team = require('./models/Team');
-const Task = require('./models/Task');
+const { db } = require('./firebase');
+const { collection, getDocs, deleteDoc, doc, query, where } = require('firebase/firestore');
 
 const clearDatabase = async () => {
   try {
-    const MONGO_URI = process.env.MONGO_URI;
-    if (!MONGO_URI) {
-      console.error('ERROR: MONGO_URI not found in .env file');
-      process.exit(1);
-    }
-
-    console.log('Connecting to MongoDB...');
-    await mongoose.connect(MONGO_URI);
-    console.log('Connected successfully.');
+    console.log('Connecting to Firebase Firestore...');
 
     console.log('Cleaning collections...');
     
-    // Delete documents
-    const userResult = await User.deleteMany({ role: { $ne: 'admin' } });
-    const teamResult = await Team.deleteMany({});
-    const taskResult = await Task.deleteMany({});
+    // Delete users except admin
+    const usersQ = query(collection(db, 'users'), where('role', '!=', 'admin'));
+    const usersSnap = await getDocs(usersQ);
+    const userDeletions = usersSnap.docs.map(d => deleteDoc(doc(db, 'users', d.id)));
+
+    // Delete teams
+    const teamsSnap = await getDocs(collection(db, 'teams'));
+    const teamDeletions = teamsSnap.docs.map(d => deleteDoc(doc(db, 'teams', d.id)));
+
+    // Delete tasks
+    const tasksSnap = await getDocs(collection(db, 'tasks'));
+    const taskDeletions = tasksSnap.docs.map(d => deleteDoc(doc(db, 'tasks', d.id)));
+
+    await Promise.all([...userDeletions, ...teamDeletions, ...taskDeletions]);
 
     console.log(`----------------------------------`);
     console.log(`✅ SUCCESS: Database cleared.`);
-    console.log(`- Users deleted: ${userResult.deletedCount}`);
-    console.log(`- Teams deleted: ${teamResult.deletedCount}`);
-    console.log(`- Tasks deleted: ${taskResult.deletedCount}`);
+    console.log(`- Users deleted: ${userDeletions.length}`);
+    console.log(`- Teams deleted: ${teamDeletions.length}`);
+    console.log(`- Tasks deleted: ${taskDeletions.length}`);
     console.log(`----------------------------------`);
     console.log(`Note: Admin accounts were preserved for safety.`);
 

@@ -7,8 +7,8 @@
 
 const bcrypt = require('bcryptjs');
 const jwt    = require('jsonwebtoken');
-const User   = require('../models/User');
-const Team   = require('../models/Team');
+const { db } = require('../firebase');
+const { collection, getDocs, query, where, addDoc } = require('firebase/firestore');
 
 // ── Helper: Generate JWT Token ────────────────────────────────────────────────
 // Encodes the user's _id and role into a signed token valid for 7 days
@@ -32,22 +32,28 @@ const signup = async (req, res) => {
     }
 
     // Check if email is already registered
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
+    const usersRef = collection(db, 'users');
+    const q = query(usersRef, where('email', '==', email));
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
       return res.status(400).json({ message: 'Email is already registered.' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await User.create({
+    const docRef = await addDoc(usersRef, {
       name,
       email,
       password: hashedPassword,
       role: 'team',
     });
 
+    const user = { _id: docRef.id, name, email, role: 'team' };
+
     // Save initial location if provided, else default to India center
-    await Team.create({
+    const teamsRef = collection(db, 'teams');
+    await addDoc(teamsRef, {
       userId: user._id,
       name: user.name,
       teamType: teamType || 'Rescue Van',
@@ -87,10 +93,16 @@ const login = async (req, res) => {
     }
 
     // Find user by email
-    const user = await User.findOne({ email });
-    if (!user) {
+    const usersRef = collection(db, 'users');
+    const q = query(usersRef, where('email', '==', email));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
       return res.status(400).json({ message: 'Invalid email or password.' });
     }
+
+    const userDoc = querySnapshot.docs[0];
+    const user = { _id: userDoc.id, ...userDoc.data() };
 
     // Compare entered password with stored hash
     const isMatch = await bcrypt.compare(password, user.password);
@@ -101,8 +113,12 @@ const login = async (req, res) => {
     // If user is a team member, fetch their team profile to send teamId
     let teamId = null;
     if (user.role === 'team') {
-      const team = await Team.findOne({ userId: user._id });
-      if (team) teamId = team._id;
+      const teamsRef = collection(db, 'teams');
+      const teamQ = query(teamsRef, where('userId', '==', user._id));
+      const teamSnapshot = await getDocs(teamQ);
+      if (!teamSnapshot.empty) {
+        teamId = teamSnapshot.docs[0].id;
+      }
     }
 
     // Generate and return token
@@ -115,7 +131,7 @@ const login = async (req, res) => {
         name:   user.name,
         email:  user.email,
         role:   user.role,
-        teamId, // null for admin, ObjectId for team members
+        teamId, // null for admin, string for team members
       },
     });
   } catch (err) {
@@ -127,22 +143,26 @@ const login = async (req, res) => {
 // ── seedAdmin ─────────────────────────────────────────────────────────────────
 // POST /api/auth/seed-admin
 // One-time endpoint to create the admin account
-// In production you'd remove this, but for a POC it's fine
 const seedAdmin = async (req, res) => {
   try {
     // Check if admin already exists
-    const existing = await User.findOne({ role: 'admin' });
-    if (existing) {
+    const usersRef = collection(db, 'users');
+    const q = query(usersRef, where('role', '==', 'admin'));
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
       return res.status(400).json({ message: 'Admin account already exists.' });
     }
 
     const hashedPassword = await bcrypt.hash('admin123', 10);
-    const admin = await User.create({
+    const docRef = await addDoc(usersRef, {
       name:     'Admin',
       email:    'admin@rescue.com',
       password: hashedPassword,
       role:     'admin',
     });
+
+    const admin = { _id: docRef.id, email: 'admin@rescue.com' };
 
     res.status(201).json({
       message:  'Admin account created!',

@@ -10,36 +10,37 @@
  *        router.get('/admin-only', protect, adminOnly, handler)
  */
 
-const jwt  = require('jsonwebtoken');
-const User = require('../models/User');
+const jwt = require('jsonwebtoken');
+const { db } = require('../firebase');
+const { doc, getDoc } = require('firebase/firestore');
 
 // ── protect ──────────────────────────────────────────────────────────────────
 // Verifies the JWT token sent in the Authorization header.
 const protect = async (req, res, next) => {
   try {
-    // The token is sent as: Authorization: Bearer <token>
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({ message: 'No token provided. Please login.' });
     }
 
-    // Extract the token part (after "Bearer ")
     const token = authHeader.split(' ')[1];
 
-    // Verify the token using our secret key
-    // If the token is expired or tampered, this throws an error
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Fetch the user from DB (excluding password) and attach to request
-    // This makes req.user available in all downstream route handlers
-    req.user = await User.findById(decoded.id).select('-password');
+    const userRef = doc(db, 'users', decoded.id);
+    const userSnap = await getDoc(userRef);
 
-    if (!req.user) {
+    if (!userSnap.exists()) {
       return res.status(401).json({ message: 'User not found. Token is invalid.' });
     }
 
-    next(); // Pass control to the actual route handler
+    const userData = userSnap.data();
+    delete userData.password; // exclude password
+
+    req.user = { _id: userSnap.id, ...userData };
+
+    next();
   } catch (err) {
     return res.status(401).json({ message: 'Token is invalid or expired. Please login again.' });
   }
