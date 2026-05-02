@@ -93,7 +93,7 @@ const MapView = ({ teams = [], tasks = [], onMapClick, clickedLatLng, currentUse
         <div style="font-family: sans-serif; min-width: 140px; padding: 5px;">
           <strong style="color:#1e293b; font-size: 14px;">${team.name} ${isMe ? '(YOU)' : ''}</strong><br/>
           <div style="margin: 8px 0;">
-            <span style="color: ${STATUS_COLORS[team.status]}; font-weight: bold;">● ${team.status}</span>
+            <span style="color: ${STATUS_COLORS[team.status || 'Available']}; font-weight: bold;">● ${team.status || 'Available'}</span>
           </div>
           ${myTask ? `
             <div style="font-size: 11px; color: #64748b; border-top: 1px solid #eee; pt: 5px;">

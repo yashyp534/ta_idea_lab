@@ -47,38 +47,42 @@ const AdminTeams = () => {
           ) : teams.length === 0 ? (
             <div className="empty-state">No rescue teams registered yet.</div>
           ) : (
-            teams.map((team) => (
-              <div key={team._id} className={`team-status-card status-${team.status.toLowerCase().replace(' ', '-')}`}>
-                <div className="card-left">
-                  <div className="unit-avatar">
-                    {TEAM_EMOJIS[team.teamType] || '🚐'}
-                  </div>
-                  <div className="unit-info">
-                    <h3>{team.name}</h3>
-                    <div className="unit-meta">
-                      <span className="last-seen">
-                        🕒 {getTimeSince(team.lastUpdated)}
-                      </span>
+            teams.map((team) => {
+              const status = team.status || 'Available';
+              const lastUpdated = team.lastUpdated || new Date().toISOString();
+              return (
+                <div key={team._id} className={`team-status-card status-${status.toLowerCase().replace(' ', '-')}`}>
+                  <div className="card-left">
+                    <div className="unit-avatar">
+                      {TEAM_EMOJIS[team.teamType] || '🚐'}
+                    </div>
+                    <div className="unit-info">
+                      <h3>{team.name}</h3>
+                      <div className="unit-meta">
+                        <span className="last-seen">
+                          🕒 {getTimeSince(lastUpdated)}
+                        </span>
+                      </div>
                     </div>
                   </div>
+                  
+                  <div className="card-right">
+                    <div className={`status-badge badge-${status.toLowerCase().replace(' ', '-')}`}>
+                      {status}
+                    </div>
+                    <div className="unit-coords">
+                      📍 {team.currentLocation?.lat?.toFixed(4) || '0.0000'}, {team.currentLocation?.lng?.toFixed(4) || '0.0000'}
+                    </div>
+                  </div>
+                  
+                  {status === 'On Mission' && (
+                    <div className="active-mission-strip">
+                      ACTIVE MISSION
+                    </div>
+                  )}
                 </div>
-                
-                <div className="card-right">
-                  <div className={`status-badge badge-${team.status.toLowerCase().replace(' ', '-')}`}>
-                    {team.status}
-                  </div>
-                  <div className="unit-coords">
-                    📍 {team.currentLocation.lat.toFixed(4)}, {team.currentLocation.lng.toFixed(4)}
-                  </div>
-                </div>
-                
-                {team.status === 'On Mission' && (
-                  <div className="active-mission-strip">
-                    ACTIVE MISSION
-                  </div>
-                )}
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </main>

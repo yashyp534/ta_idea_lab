@@ -57,6 +57,8 @@ const signup = async (req, res) => {
       userId: user._id,
       name: user.name,
       teamType: teamType || 'Rescue Van',
+      status: 'Available',
+      lastUpdated: new Date().toISOString(),
       currentLocation: {
         lat: lat || 20.5937,
         lng: lng || 78.9629
